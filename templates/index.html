@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MediTrack IoT — Remote Patient Monitoring</title>
+<link rel="stylesheet" href="/static/css/style.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">🩺 MediTrack <span>IoT • Remote Patient Monitoring</span></div>
+  <div class="top-actions">
+    <span id="clock" class="clock"></span>
+    <button id="simulateBtn" class="btn primary">📡 Simulate IoT reading</button>
+  </div>
+</header>
+
+<main class="layout">
+  <aside class="sidebar">
+    <div class="card">
+      <h3>Stats</h3>
+      <div class="stat-grid">
+        <div class="stat"><b id="stPatients">–</b><small>Patients</small></div>
+        <div class="stat"><b id="stDevices">–</b><small>Devices</small></div>
+        <div class="stat"><b id="stReadings">–</b><small>Readings</small></div>
+        <div class="stat alert-stat"><b id="stAlerts">–</b><small>Alerts</small></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row-between">
+        <h3>Patients</h3>
+        <button id="refreshBtn" class="btn small">↻</button>
+      </div>
+      <div id="patientList" class="patient-list"></div>
+    </div>
+
+    <div class="card">
+      <h3>➕ Register patient / device</h3>
+      <form id="addForm" class="form">
+        <input name="name" placeholder="Full name" required />
+        <div class="form-2col">
+          <input name="age" type="number" min="0" max="130" placeholder="Age" required />
+          <select name="gender" required>
+            <option value="">Gender</option><option>Male</option><option>Female</option><option>Other</option>
+          </select>
+        </div>
+        <input name="condition" placeholder="Condition (e.g. Hypertension)" />
+        <input name="device_id" placeholder="Device ID (e.g. IOT-WATCH-010)" required />
+        <button class="btn primary" type="submit">Add patient</button>
+      </form>
+    </div>
+
+    <div class="card alerts-card">
+      <h3>⚠️ Live alerts</h3>
+      <div id="alertList"><p class="muted">No alerts. All vitals normal.</p></div>
+    </div>
+  </aside>
+
+  <section class="main">
+    <div class="card">
+      <div class="row-between">
+        <div>
+          <h2 id="selName">Select a patient</h2>
+          <p id="selMeta" class="muted"></p>
+        </div>
+        <select id="rangeSel" class="btn small">
+          <option value="20">Last 20 readings</option>
+          <option value="50" selected>Last 50 readings</option>
+          <option value="100">Last 100 readings</option>
+        </select>
+      </div>
+      <div class="vitals-grid" id="vitalCards"></div>
+    </div>
+
+    <div class="card">
+      <h3>❤️ Heart rate & SpO₂ trend</h3>
+      <canvas id="chartHR" height="110"></canvas>
+    </div>
+    <div class="grid-2">
+      <div class="card"><h3>🌡️ Temperature</h3><canvas id="chartTemp" height="130"></canvas></div>
+      <div class="card"><h3>🩸 Blood pressure</h3><canvas id="chartBP" height="130"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="row-between"><h3>Recent readings</h3><span id="liveDot" class="live">● LIVE</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Time (UTC)</th><th>HR</th><th>SpO₂</th><th>Temp</th><th>BP</th><th>Status</th></tr></thead>
+          <tbody id="vitalRows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card api-card">
+      <h3>🔌 IoT Device API (Python → MySQL)</h3>
+      <pre><code># From any IoT device / Python script:
+import requests
+requests.post("http://localhost:5000/api/vitals", json={
+  "device_id": "IOT-WATCH-001",
+  "heart_rate": 78, "spo2": 98.2, "temperature": 36.8,
+  "bp_systolic": 122, "bp_diastolic": 81
+})</code></pre>
+      <p class="muted">MySQL Workbench: <code>medical_iot</code> • Tables: <code>patients</code>, <code>vitals</code> • See README + schema.sql.</p>
+    </div>
+  </section>
+</main>
+
+<script src="/static/js/dashboard.js"></script>
+</body>
+</html>
